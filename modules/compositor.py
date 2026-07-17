@@ -3,13 +3,13 @@ import io, os, dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib, Gtk, GdkPixbuf, Gio
 from PIL import Image, ImageDraw
-from state import PANEL_H, PANEL_W
-fb = Image.new("L", (PANEL_W, PANEL_H), 255)
+import state
+fb = Image.new("L", (state.PANEL_W, state.PANEL_H), 255)
 frames = []
 
 def init():
     global fb, frames
-    fb = Image.new("L", (PANEL_W, PANEL_H), 255)
+    fb = Image.new("L", (state.PANEL_W, state.PANEL_H), 255)
     frames = []
 
 def add_frame(frameref):

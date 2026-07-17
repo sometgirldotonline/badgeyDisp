@@ -32,7 +32,7 @@ def build_frame_bytes(payload: bytes, pw: int = state.PANEL_W, ph: int =  state.
 run = True
 
 
-def build_clock_frame() -> bytes:
+def build_frame() -> bytes:
     compositor.init()
     compositor.add_frame(clock.fb())
     compositor.add_frame(notifications.fb())
@@ -44,8 +44,10 @@ notifications.init()
 clock.init()
 
 def send_frame():
-        device.send(build_clock_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
-        
+        if os.getenv("badgey_mode","badge") == "badge":    
+            device.send(build_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
+        elif os.getenv("badgey_mode", "badge") == "preview":
+            preview.show(build_frame())
 if os.getenv("badgey_mode","badge") == "badge":    
     while run:
         send_frame()
@@ -53,6 +55,12 @@ if os.getenv("badgey_mode","badge") == "badge":
         next_minute = (int(now) // 60 + 1) * 60
         sleep(next_minute - now)
 elif os.getenv("badgey_mode", "badge") == "preview":
-    preview.BadgePreview(scale=1).run(build_clock_frame, interval_ms=1000)
+    print(f"[preview] writing to {preview.get_path()}")
+    print(f"[preview] try: feh --reload 1 {preview.get_path()}")
+    while run:
+        send_frame()
+        now = time()
+        next_minute = (int(now) // 60 + 1) * 60
+        sleep(1)
 else:
     print(f"[main] mode {os.getenv("badgey_mode", "????")} is unknown, expects one of badge or preview")

@@ -54,22 +54,27 @@ def wttr_thread():
 
 
 def fb():
+    fgc = 255
+    bgc = 0
+    if state.FULLSCREEN_VIEW:
+        fgc = 0
+        bgc = 255
     global last_refreshed,fbuf
     fbuf = Image.new("L", (state.PANEL_W, state.PANEL_H), 220)
     if (time.time() - last_refreshed) >= 420 and update_successful:
         update_thread = threading.Thread(target=wttr_thread)
         update_thread.start()
         ltext = "Loading..."
-        ImageDraw.Draw(fbuf).rounded_rectangle(xy=(state.PANEL_W-((ImageDraw.Draw(fbuf).textlength(ltext,font=fonts.MainFont))+20),0,state.PANEL_W,32),radius=11,fill=0,outline=None,width=0,corners=[False,False,False,True])
-        ImageDraw.Draw(fbuf).text((state.PANEL_W-10, 15), ltext, font=fonts.MainFont, fill=255, anchor="rm")
+        ImageDraw.Draw(fbuf).rounded_rectangle(xy=(state.PANEL_W-((ImageDraw.Draw(fbuf).textlength(ltext,font=fonts.MainFont))+20),0,state.PANEL_W,32),radius=11,fill=bgc,outline=None,width=0,corners=[False,False,False,True])
+        ImageDraw.Draw(fbuf).text((state.PANEL_W-10, 15), ltext, font=fonts.MainFont, fill=fgc, anchor="rm")
     else:
         tmp_w = ImageDraw.Draw(fbuf).textlength(tmp,font=fonts.MainFont)
         sky_w = ImageDraw.Draw(fbuf).textlength(sky,font=fonts.MainFont)
         circ = 8
         gap = 10
-        ImageDraw.Draw(fbuf).rounded_rectangle(xy=(state.PANEL_W-(sky_w+tmp_w+circ*2+gap+gap),0,state.PANEL_W,32),radius=11,fill=0,outline=None,width=0,corners=[False,False,False,True])
-        ImageDraw.Draw(fbuf).text((state.PANEL_W-10, 15), sky, font=fonts.MainFont, fill=255, anchor="rm")
-        ImageDraw.Draw(fbuf).circle((state.PANEL_W-(sky_w+gap+circ)+1,15),circ/2,255)
-        ImageDraw.Draw(fbuf).text((state.PANEL_W-(sky_w+gap+circ*2), 15), tmp, font=fonts.MainFont, fill=255, anchor="rm")
+        ImageDraw.Draw(fbuf).rounded_rectangle(xy=(state.PANEL_W-(sky_w+tmp_w+circ*2+gap+gap),0,state.PANEL_W,32),radius=11,fill=bgc,outline=None,width=0,corners=[False,False,False,True])
+        ImageDraw.Draw(fbuf).text((state.PANEL_W-10, 15), sky, font=fonts.MainFont, fill=fgc, anchor="rm")
+        ImageDraw.Draw(fbuf).circle((state.PANEL_W-(sky_w+gap+circ)+1,15),circ/2,fgc)
+        ImageDraw.Draw(fbuf).text((state.PANEL_W-(sky_w+gap+circ*2), 15), tmp, font=fonts.MainFont, fill=fgc, anchor="rm")
 
     return fbuf
