@@ -109,7 +109,7 @@ waiting_notif = None
 
 def clear_notif():
     global waiting_notif
-    sleep(30)
+    sleep(1)
     state.FULLSCREEN_VIEW = False
     waiting_notif = None
     __main__.send_frame()
@@ -126,7 +126,7 @@ def fb():
     return fbuf
 
 def msg_filter(bus, message):
-    global waiting_notif
+    global waiting_notif, past_icons
     if message.get_interface() != "org.freedesktop.Notifications" or message.get_member() !="Notify":
         return
     try:
@@ -163,6 +163,8 @@ Hints -> {hints}
         waiting_notif = {"icon":iconimage,"app":app_name,"title":title,"body":body}
         state.FULLSCREEN_VIEW = True
         past_icons.insert(0,iconimage)
+        if len(past_icons) > 5:
+            past_icons = past_icons[:5]
         __main__.send_frame()
     except Exception as e:
         print(f"[notifications] Error parsing message contents: {e}")

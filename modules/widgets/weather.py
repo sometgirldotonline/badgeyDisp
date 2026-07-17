@@ -70,11 +70,11 @@ def fb():
     else:
         tmp_w = ImageDraw.Draw(fbuf).textlength(tmp,font=fonts.MainFont)
         sky_w = ImageDraw.Draw(fbuf).textlength(sky,font=fonts.MainFont)
-        circ = 8
-        gap = 10
+        circ = 4
+        gap = 15
         ImageDraw.Draw(fbuf).rounded_rectangle(xy=(state.PANEL_W-(sky_w+tmp_w+circ*2+gap+gap),0,state.PANEL_W,32),radius=11,fill=bgc,outline=None,width=0,corners=[False,False,False,True])
         ImageDraw.Draw(fbuf).text((state.PANEL_W-10, 15), sky, font=fonts.MainFont, fill=fgc, anchor="rm")
         ImageDraw.Draw(fbuf).circle((state.PANEL_W-(sky_w+gap+circ)+1,15),circ/2,fgc)
-        ImageDraw.Draw(fbuf).text((state.PANEL_W-(sky_w+gap+circ*2), 15), tmp, font=fonts.MainFont, fill=fgc, anchor="rm")
+        ImageDraw.Draw(fbuf).text((state.PANEL_W-(sky_w+gap+circ*2+5), 15), tmp, font=fonts.MainFont, fill=fgc, anchor="rm")
 
     return fbuf

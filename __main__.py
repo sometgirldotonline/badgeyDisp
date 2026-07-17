@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageColor,ImageText
 import numpy as np
 from modules import preview
 from modules import device
-from modules import device
+from modules.widgets import media 
 from modules.widgets import notifications
 from modules.widgets import clock
 from modules.widgets import weather
@@ -37,6 +37,7 @@ def build_frame() -> bytes:
     compositor.add_frame(clock.fb())
     compositor.add_frame(notifications.fb())
     compositor.add_frame(weather.fb())
+    compositor.add_frame(media.fb())
     compositor.render()
     bw = compositor.fb.convert("1", dither=Image.NONE)
     return pack_portrait(bw)
