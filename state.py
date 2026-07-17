@@ -1,4 +1,4 @@
-state = {
-    "PANEL_W": 296,
-    "PANEL_H": 152
-}
+PANEL_W = 296
+PANEL_H = 152
+WTTR_LAT = -27.47
+WTTR_LONG = 153.03

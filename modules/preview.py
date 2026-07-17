@@ -16,7 +16,7 @@ class BadgePreview:
         import tkinter as tk
 
         self.pw, self.ph, self.scale = pw, ph, scale
-        self.root = tk.Tk()
+        self.root = tk.Tk(className="badgeydisp")
         self.root.title("badge preview")
         self.label = tk.Label(self.root, bg="#888")
         self.label.pack()

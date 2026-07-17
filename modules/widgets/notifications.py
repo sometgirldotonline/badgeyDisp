@@ -3,10 +3,11 @@ import io, os, dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib, Gtk, GdkPixbuf, Gio
 from PIL import Image, ImageDraw
-from fonts import fonts
+import fonts
+from state import PANEL_H, PANEL_W
 # presume these sizes
 PANEL_W, PANEL_H = 296, 152
-fb = Image.new("L", (PANEL_W, PANEL_H), 0)
+fbuf = Image.new("L", (PANEL_W, PANEL_H), 220)
 timeout = 0
 def resolve_icon(icon_str):
     if not icon_str:
@@ -56,18 +57,44 @@ def resolve_icon(icon_str):
         return found_regular
 
 
-def init(pnw,pnh):
-    global fb
-    PANEL_W, PANEL_H = pnw, pnh
-    fb = Image.new("L", (PANEL_W, PANEL_H), 0)
-    ImageDraw.Draw(fb).text((54,28),"No Notifications", fill=255,font=fonts.MainFont, align="lm")
-    ImageDraw.Draw(fb).text((32,55),"No Notifications", fill=255,font=fonts.NotifTitle, align="lm")
-    ImageDraw.Draw(fb).text((32,85),"No Notifications", fill=255,font=fonts.MainFont, align="lm")
+def render_notif(icon=Image.new("L", (16,16),255), app="Unknown", title="Unset title", body="No body provided"):
+    global fbuf
+    fbuf = Image.new("L", (PANEL_W, PANEL_H), 0)
+    ImageDraw.Draw(fbuf).text((54,28),"No Notifications", fill=255,font=fonts.MainFont, align="lm")
+    ImageDraw.Draw(fbuf).text((32,55),"No Notifications", fill=255,font=fonts.NotifTitle, align="lm")
+    ImageDraw.Draw(fbuf).text((32,85),"No Notifications", fill=255,font=fonts.MainFont, align="lm")
     # notifIcon = Image.open("notification_icon.png").convert("L").resize((16,16))
+    fbuf.paste(icon,(32,32))
+def render_statusbar(icons=[]):
+    global fbuf
+    fbuf = Image.new("L", (PANEL_W, PANEL_H), 220)
+    icc = 5
+    width = (16 * icc) + (10 * (icc + 1))
+    ImageDraw.Draw(fbuf).rounded_rectangle(
+        xy=(0, 0, width, 32),
+        radius=11,
+        fill=0,  # Changed from 0 to visible white (or use 255 for grayscale)
+        width=0,
+        corners=[False, False, True, False]
+    )
     notifIcon = Image.new("L", (16,16),255)
-    fb.paste(notifIcon,(32,32))
+    for i in range(0,5):
+        fbuf.paste(notifIcon,(
+            (16*i) + (10*(i+1))
+            ,10))
 
-def update():
-    notifTimeout -= 1
-    if notifTimeout == -2:
+def init():
+    global fbuf
+    fbuf = Image.new("L", (PANEL_W, PANEL_H), 220)
+
+
+def fb():
+    global timeout
+    timeout -= 1
+    if timeout == -2:
         timeout = 5
+    if timeout < 1:
+        render_statusbar([])
+    else:
+        render_notif()
+    return fbuf

@@ -1,5 +1,4 @@
 from PIL import ImageFont
-class fonts:
-    ClockFont = ImageFont.truetype("wdxllubrifonttc.ttf", 70)
-    MainFont  = ImageFont.truetype("wdxllubrifonttc.ttf", 18)
-    NotifTitle  = ImageFont.truetype("wdxllubrifonttc.ttf", 22)
+ClockFont   = ImageFont.truetype("wdxllubrifonttc.ttf", 70)
+MainFont    = ImageFont.truetype("wdxllubrifonttc.ttf", 18)
+NotifTitle  = ImageFont.truetype("wdxllubrifonttc.ttf", 22)

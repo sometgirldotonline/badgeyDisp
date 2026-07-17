@@ -3,33 +3,34 @@ import io, os, dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib, Gtk, GdkPixbuf, Gio
 from PIL import Image, ImageDraw
-from fonts import fonts
-PANEL_W, PANEL_H = 296, 152
-f = Image.new("L", (PANEL_W, PANEL_H), 0)
+from state import PANEL_H, PANEL_W
+fb = Image.new("L", (PANEL_W, PANEL_H), 255)
 frames = []
 
-def init(pnw,pnh):
-    global fb
-    PANEL_W, PANEL_H = pnw, pnh
-    fb = Image.new("L", (PANEL_W, PANEL_H), 0)
-    notifIcon = Image.new("L", (16,16),255)
+def init():
+    global fb, frames
+    ImageDraw.Draw(fb).rectangle((0,0,0,0),255)
 
 def add_frame(frameref):
+    global fb, frames
     frames.append(frameref)
 
 def del_frame(frameref):
+    global fb, frames
     frames.remove(frameref)
 
 def move_frame_to_layer(frameref, idx):
+    global fb, frames
     frames.remove(frameref)
     frames.insert(idx, frameref)
 
 def move_frame_by(frameref, adj):
+    global fb, frames
     current_pos = frames.index(frameref)
     frames.remove(frameref)
     frames.insert(current_pos+adj, frameref)
 
 def render():
+    global fb, frames
     for frame in frames:
-        f.paste(frame,(0,0))
-    return f
+        fb.paste(frame,(0,0),mask=frame.point(lambda p: 0 if p == 220 else 255))
