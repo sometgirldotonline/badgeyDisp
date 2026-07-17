@@ -8,7 +8,7 @@ from modules.widgets import clock
 from modules.widgets import weather
 # PANEL_W, PANEL_H = 296, 152
 import state
-from time import sleep
+from time import sleep, time
 import os
 import fonts
 from modules import compositor
@@ -43,10 +43,15 @@ def build_clock_frame() -> bytes:
 notifications.init()
 clock.init()
 
+def send_frame():
+        device.send(build_clock_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
+        
 if os.getenv("badgey_mode","badge") == "badge":    
     while run:
-        device.send(build_clock_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
-        sleep(3)
+        send_frame()
+        now = time()
+        next_minute = (int(now) // 60 + 1) * 60
+        sleep(next_minute - now)
 elif os.getenv("badgey_mode", "badge") == "preview":
     preview.BadgePreview(scale=1).run(build_clock_frame, interval_ms=1000)
 else:

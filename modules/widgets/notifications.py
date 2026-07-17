@@ -93,7 +93,7 @@ def fb():
     timeout -= 1
     if timeout == -2:
         timeout = 5
-    if timeout < 1:
+    if True:
         render_statusbar([])
     else:
         render_notif()

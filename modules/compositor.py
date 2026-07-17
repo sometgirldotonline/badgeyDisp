@@ -9,7 +9,8 @@ frames = []
 
 def init():
     global fb, frames
-    ImageDraw.Draw(fb).rectangle((0,0,0,0),255)
+    fb = Image.new("L", (PANEL_W, PANEL_H), 255)
+    frames = []
 
 def add_frame(frameref):
     global fb, frames
