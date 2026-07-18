@@ -1,10 +1,10 @@
 from PIL import Image
 import numpy as np
 import tempfile, os
-
+import state
 _preview_path = os.path.join(tempfile.gettempdir(), "badgey_preview.png")
 
-def unpack_portrait(packed: bytes, pw: int = 152, ph: int = 296) -> Image.Image:
+def unpack_portrait(packed: bytes, pw: int = state.PANEL_W, ph: int = state.PANEL_H) -> Image.Image:
     arr = np.frombuffer(packed, dtype=np.uint8).reshape(ph, pw // 8)
     portrait = np.unpackbits(arr, axis=1, bitorder="big")
     landscape = np.flipud(portrait.T)

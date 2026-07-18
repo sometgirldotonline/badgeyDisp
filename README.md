@@ -35,7 +35,7 @@ In any order:
 - Run the software
 
 ## Without badge:
-- Run software
+- Run software with the environment variable `badgey_mode=preview`
 - Open an auto reloading image viewer
     I use `feh` personally, configured like so: `feh --reload 1 /tmp/badgey_preview`
 

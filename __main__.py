@@ -10,7 +10,7 @@ from modules.widgets import weather
 # PANEL_W, PANEL_H = 296, 152
 import state
 from time import sleep, time
-import os, traceback
+import os, traceback,sys
 # import fonts
 from modules import compositor
 def pack_portrait(bw_landscape: Image.Image) -> bytes:
@@ -59,7 +59,7 @@ if os.getenv("badgey_mode", "badge") == "preview":
     print(f"[preview] try: feh --reload 1 {preview.get_path()}")
 if os.getenv("badgey_mode", "badge") not in ["badge","preview"]:
     print(f"[main] mode {os.getenv("badgey_mode", "????")} is unknown, expects one of badge or preview")
-    exit()
+    sys.exit()
 while run:
     send_frame()
     now = time()

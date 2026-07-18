@@ -1,4 +1,4 @@
-import json
+import json, sys
 try:
     with open('settings.json', 'r') as f:
         data = json.load(f)
@@ -6,7 +6,7 @@ except Exception as e:
     print(f"[settings] error in loading settings.json: {e}")
     print(f"[settings] check if settings.json exists in workdir")
     print(f"[settings] you can make it an empty json object if you just want defaults, have a poke at the weather coords :3")
-    exit()
+    sys.exit()
 # width of display
 PANEL_W = None
 # height display
