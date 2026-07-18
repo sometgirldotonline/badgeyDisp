@@ -1,7 +1,8 @@
 # code borrowed from https://github.com/notaroomba/badge-paint/blob/main/tools/send_frame.py
 import struct
-import sys
+# import sys
 import time
+import traceback
 frame_in_flight = False
 import serial  # pip install pyserial
 def test_pattern(PW=296, PH=152):
@@ -27,20 +28,37 @@ def from_image(img_,PW=296, PH=152):
     img = img.point(lambda p: 255 if p > 127 else 0, mode="1")
     return img.tobytes()
 
-def send(frame=test_pattern(152, 296), portname="/dev/ttyACM0", PW=152, PH=296):
+portname="/dev/ttyACM0"
+_port = None
+def get_port():
+    global frame_in_flight
+    try:
+        global _port
+        if _port is None or not _port.is_open:
+            _port = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
+        return _port
+    except Exception as e:
+        print(f"[device] error occured connecting to serial: {e}")
+        traceback.print_exc()
+        frame_in_flight = False
+
+def send(frame=test_pattern(152, 296), PW=152, PH=296):
     global frame_in_flight
     if frame_in_flight:
         return
     frame_in_flight = True  # portrait dims
-    with serial.Serial(portname, 115200, timeout=1) as port:
-        packet = b"BPNT1" + struct.pack(">HH", PW, PH) + frame
-        print(f"[device] sending {len(packet)} bytes to {portname}")
-        port.write(packet)
-        port.flush()
+    packet = b"BPNT1" + struct.pack(">HH", PW, PH) + frame
+    print(f"[device] sending {len(packet)} bytes to {portname}")
+    try:
+        p = get_port()
+        if p == None:
+            raise Exception("we didnt catch this one earlier but the port doesnt exist and i dont fucking know why, did you plug it in?")
+        p.write(packet)
+        p.flush()
         deadline = time.time() + 45
         buf = b""
         while time.time() < deadline:
-            buf += port.read(64)
+            buf += p.read(64)
             if b"OK" in buf:
                 print("[device] frame printed OK!")
                 frame_in_flight = False
@@ -51,4 +69,7 @@ def send(frame=test_pattern(152, 296), portname="/dev/ttyACM0", PW=152, PH=296):
                 return
         print("[device] timed out waiting for understood response!\n[device] recieved:", buf.decode(errors="replace"))
         frame_in_flight = False
-        
+    except Exception as e:
+        print(f"[device] error sending frame: {e}")
+        frame_in_flight = False
+        traceback.print_exc()

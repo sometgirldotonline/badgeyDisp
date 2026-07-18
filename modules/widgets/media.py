@@ -57,39 +57,46 @@ def fitter(string, mlen=32, sep=" - "):
 
 def tracker_thread2():
     global media_string,mstate
-    proc = subprocess.Popen(
-        ["playerctl", "metadata", "-F", '-f', '{{xesam:title}}⸻{{xesam:artist}}'],
-        stdout=subprocess.PIPE,
-        text=True
-    )
-    for line in proc.stdout:
-        line = line.strip().split("⸻")
-        stateproc = subprocess.run(['playerctl', 'status'], capture_output=True, text=True)
-        print(stateproc.stdout)
-        if "Playing" in stateproc.stdout.strip():
-            media_string = line
-            mstate = True
-            __main__.send_frame()
-        else:
-            mstate = False
-            __main__.send_frame()
+    try:
+        proc = subprocess.Popen(
+            ["playerctl", "metadata", "-F", '-f', '{{xesam:title}}⸻{{xesam:artist}}'],
+            stdout=subprocess.PIPE,
+            text=True
+        )
+        for line in proc.stdout:
+            line = line.strip().split("⸻")
+            stateproc = subprocess.run(['playerctl', 'status'], capture_output=True, text=True)
+            print(stateproc.stdout)
+            if "Playing" in stateproc.stdout.strip():
+                media_string = line
+                mstate = True
+                __main__.send_frame()
+            else:
+                mstate = False
+                __main__.send_frame()
+    except Exception as e:
+        print(f"[media] exception in calling playerctl (or parsing output) in tracker_thread2: {e}")
+        print(f"[media] maybe check if playerctl is installed?")
 def tracker_thread1():
     global media_string,mstate
-    proc = subprocess.Popen(
-        ["playerctl", "status", "-F"],
-        stdout=subprocess.PIPE,
-        text=True
-    )
-    for line in proc.stdout:
-        if "Playing" in line.strip():
-            metaproc = subprocess.run(['playerctl', 'metadata', '-f', '{{xesam:title}}⸻{{xesam:artist}}'], capture_output=True, text=True)
-            media_string = metaproc.stdout.strip().split("⸻")
-            mstate = True
-            __main__.send_frame()
-        else:
-            mstate = False
-            __main__.send_frame()
-
+    try:
+        proc = subprocess.Popen(
+            ["playerctl", "status", "-F"],
+            stdout=subprocess.PIPE,
+            text=True
+        )
+        for line in proc.stdout:
+            if "Playing" in line.strip():
+                metaproc = subprocess.run(['playerctl', 'metadata', '-f', '{{xesam:title}}⸻{{xesam:artist}}'], capture_output=True, text=True)
+                media_string = metaproc.stdout.strip().split("⸻")
+                mstate = True
+                __main__.send_frame()
+            else:
+                mstate = False
+                __main__.send_frame()
+    except Exception as e:
+        print(f"[media] exception in calling playerctl (or parsing output) in tracker_thread1: {e}")
+        print(f"[media] maybe check if playerctl is installed?")
 def init():
     threading.Thread(target=tracker_thread1).start()
     threading.Thread(target=tracker_thread2).start()
@@ -105,12 +112,13 @@ def fb():
         bgc = 255
     prepad= 11+16
     print(media_string)
-    if ", " in media_string[1]:
-        media_string[1] = media_string[1].split(", ")[0]
-    if " & " in media_string[1]:
-        media_string[1] = media_string[1].split(" & ")[0]
-    if "feat" in media_string[1]:
-        media_string[1] = media_string[1].split("feat")[0].strip(" ,。")
+    if len(media_string) > 1:
+        if ", " in media_string[1]:
+            media_string[1] = media_string[1].split(", ")[0]
+        if " & " in media_string[1]:
+            media_string[1] = media_string[1].split(" & ")[0]
+        if "feat" in media_string[1]:
+            media_string[1] = media_string[1].split("feat")[0].strip(" ,。")
     fitted = fitter(media_string,mlen=32,sep=" - ")
 
     if fitted is None:

@@ -1,8 +1,4 @@
-import io, os, dbus
-
-from dbus.mainloop.glib import DBusGMainLoop
-from gi.repository import GLib, Gtk, GdkPixbuf, Gio
-from PIL import Image, ImageDraw
+from PIL import Image
 import state
 fb = Image.new("L", (state.PANEL_W, state.PANEL_H), 255)
 frames = []
@@ -18,18 +14,27 @@ def add_frame(frameref):
 
 def del_frame(frameref):
     global fb, frames
-    frames.remove(frameref)
+    try:
+        frames.remove(frameref)
+    except Exception as e:
+        print(f"[compositor] maybe put the frame there first??? {e}")
 
 def move_frame_to_layer(frameref, idx):
     global fb, frames
-    frames.remove(frameref)
-    frames.insert(idx, frameref)
+    try:
+        frames.remove(frameref)
+        frames.insert(idx, frameref)
+    except Exception as e:
+        print(f"[compositor] maybe put the frame there first??? {e}")
 
 def move_frame_by(frameref, adj):
     global fb, frames
-    current_pos = frames.index(frameref)
-    frames.remove(frameref)
-    frames.insert(current_pos+adj, frameref)
+    try:
+        current_pos = frames.index(frameref)
+        frames.remove(frameref)
+        frames.insert(current_pos+adj, frameref)
+    except Exception as e:
+        print(f"[compositor] maybe put the frame there first??? {e}")
 
 def render():
     global fb, frames

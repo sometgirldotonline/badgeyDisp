@@ -1,4 +1,5 @@
-from PIL import Image, ImageDraw, ImageFont, ImageColor,ImageText
+from PIL import Image
+# , ImageDraw, ImageFont, ImageColor,ImageText
 import numpy as np
 from modules import preview
 from modules import device
@@ -10,7 +11,7 @@ from modules.widgets import weather
 import state
 from time import sleep, time
 import os, traceback
-import fonts
+# import fonts
 from modules import compositor
 def pack_portrait(bw_landscape: Image.Image) -> bytes:
     arr = np.array(bw_landscape)
@@ -53,19 +54,15 @@ def send_frame():
         except Exception as e:
             print(f"[main] exception caught when sending frame: {e}")
             traceback.print_exc()
-if os.getenv("badgey_mode","badge") == "badge":    
-    while run:
-        send_frame()
-        now = time()
-        next_minute = (int(now) // 60 + 1) * 60
-        sleep(next_minute - now)
-elif os.getenv("badgey_mode", "badge") == "preview":
+if os.getenv("badgey_mode", "badge") == "preview":
     print(f"[preview] writing to {preview.get_path()}")
     print(f"[preview] try: feh --reload 1 {preview.get_path()}")
-    while run:
-        send_frame()
-        now = time()
-        next_minute = (int(now) // 60 + 1) * 60
-        sleep(next_minute-now)
-else:
+if os.getenv("badgey_mode", "badge") not in ["badge","preview"]:
     print(f"[main] mode {os.getenv("badgey_mode", "????")} is unknown, expects one of badge or preview")
+    exit()
+while run:
+    send_frame()
+    now = time()
+    next_minute = (int(now) // 60 + 1) * 60
+    sleep(next_minute - now)
+

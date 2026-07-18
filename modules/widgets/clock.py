@@ -1,4 +1,3 @@
-import io, os, dbus
 import datetime
 from PIL import Image, ImageDraw
 import fonts

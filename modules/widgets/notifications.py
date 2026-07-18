@@ -1,7 +1,7 @@
 import io, os, dbus, traceback
 
 from dbus.mainloop.glib import DBusGMainLoop
-from gi.repository import GLib, Gtk, Gio
+from gi.repository import GLib, Gio
 import cairosvg
 from PIL import Image, ImageDraw
 import fonts, threading,datetime
@@ -9,8 +9,10 @@ from time import sleep
 import state
 from pathlib import Path
 import __main__
+import uuid
 fbuf = Image.new("L", (state.PANEL_W, state.PANEL_H), 220)
 past_icons = []
+cNotifID = -1
 found_regular = None
 found_symbolic = None
 def resolve_icon(icon_str="preferences-desktop-notification-symbolic"):
@@ -19,7 +21,7 @@ def resolve_icon(icon_str="preferences-desktop-notification-symbolic"):
         icon_str="preferences-desktop-notification-symbolic"
     if os.path.exists(icon_str):
         path = icon_str
-        found_symbolic = path
+        return path
     else: 
         try:
             settings = Gio.Settings.new("org.gnome.desktop.interface")
@@ -108,22 +110,25 @@ def init():
 
 waiting_notif = None
 
-def clear_notif():
+def clear_notif(me):
+    global cNotifID
     global waiting_notif
-    sleep(20)
-    state.FULLSCREEN_VIEW = False
-    waiting_notif = None
-    __main__.send_frame()
+    sleep(state.NOTIF_TIMEOUT)
+    if me == str(cNotifID):
+        state.FULLSCREEN_VIEW = False
+        waiting_notif = None
+        __main__.send_frame()
 
 def fb():
-    global waiting_notif, fbuf
+    global waiting_notif, fbuf, cNotifID
     fbuf = Image.new("L", (state.PANEL_W, state.PANEL_H), 220)
     if waiting_notif == None:
         # print("[notifications] rendering statusbar")
         render_statusbar(past_icons)
     else:
         render_notif(waiting_notif["icon"],waiting_notif["app"],waiting_notif["title"],waiting_notif["body"])
-        threading.Thread(target=clear_notif).start()
+        cNotifID =  uuid.uuid4()
+        threading.Thread(target=clear_notif,args=[str(cNotifID)]).start()
     return fbuf
 
 def msg_filter(bus, message):
