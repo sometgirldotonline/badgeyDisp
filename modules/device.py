@@ -2,7 +2,7 @@
 import struct
 import sys
 import time
-
+frame_in_flight = False
 import serial  # pip install pyserial
 def test_pattern(PW=296, PH=152):
     row = PW // 8
@@ -27,7 +27,11 @@ def from_image(img_,PW=296, PH=152):
     img = img.point(lambda p: 255 if p > 127 else 0, mode="1")
     return img.tobytes()
 
-def send(frame=test_pattern(152, 296), portname="/dev/ttyACM0", PW=152, PH=296):  # portrait dims
+def send(frame=test_pattern(152, 296), portname="/dev/ttyACM0", PW=152, PH=296):
+    global frame_in_flight
+    if frame_in_flight:
+        return
+    frame_in_flight = True  # portrait dims
     with serial.Serial(portname, 115200, timeout=1) as port:
         packet = b"BPNT1" + struct.pack(">HH", PW, PH) + frame
         print(f"[device] sending {len(packet)} bytes to {portname}")
@@ -39,9 +43,12 @@ def send(frame=test_pattern(152, 296), portname="/dev/ttyACM0", PW=152, PH=296):
             buf += port.read(64)
             if b"OK" in buf:
                 print("[device] frame printed OK!")
+                frame_in_flight = False
                 return
             if b"ERR" in buf:
                 print("[device] badge got error!\n[device] error:", buf.decode(errors="replace"))
+                frame_in_flight = False
                 return
         print("[device] timed out waiting for understood response!\n[device] recieved:", buf.decode(errors="replace"))
+        frame_in_flight = False
         

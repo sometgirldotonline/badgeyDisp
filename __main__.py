@@ -9,7 +9,7 @@ from modules.widgets import weather
 # PANEL_W, PANEL_H = 296, 152
 import state
 from time import sleep, time
-import os
+import os, traceback
 import fonts
 from modules import compositor
 def pack_portrait(bw_landscape: Image.Image) -> bytes:
@@ -31,7 +31,6 @@ def build_frame_bytes(payload: bytes, pw: int = state.PANEL_W, ph: int =  state.
 
 run = True
 
-
 def build_frame() -> bytes:
     compositor.init()
     compositor.add_frame(clock.fb())
@@ -41,14 +40,19 @@ def build_frame() -> bytes:
     compositor.render()
     bw = compositor.fb.convert("1", dither=Image.NONE)
     return pack_portrait(bw)
+media.init()
 notifications.init()
 clock.init()
 
 def send_frame():
-        if os.getenv("badgey_mode","badge") == "badge":    
-            device.send(build_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
-        elif os.getenv("badgey_mode", "badge") == "preview":
-            preview.show(build_frame())
+        try:
+            if os.getenv("badgey_mode","badge") == "badge":    
+                device.send(build_frame(), PW=state.PANEL_H, PH=state.PANEL_W)  # portrait dims in header
+            elif os.getenv("badgey_mode", "badge") == "preview":
+                preview.show(build_frame())
+        except Exception as e:
+            print(f"[main] exception caught when sending frame: {e}")
+            traceback.print_exc()
 if os.getenv("badgey_mode","badge") == "badge":    
     while run:
         send_frame()
@@ -62,6 +66,6 @@ elif os.getenv("badgey_mode", "badge") == "preview":
         send_frame()
         now = time()
         next_minute = (int(now) // 60 + 1) * 60
-        sleep(1)
+        sleep(next_minute-now)
 else:
     print(f"[main] mode {os.getenv("badgey_mode", "????")} is unknown, expects one of badge or preview")

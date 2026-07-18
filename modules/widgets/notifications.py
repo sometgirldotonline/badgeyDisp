@@ -74,13 +74,14 @@ def resolve_icon(icon_str="preferences-desktop-notification-symbolic"):
 def render_notif(icon=Image.new("L", (16,16),255), app="Unknown", title="Unset title", body="No body provided"):
     global fbuf
     fbuf = Image.new("L", (state.PANEL_W, state.PANEL_H), 0)
-    ImageDraw.Draw(fbuf).text((54,28),app, fill=255,font=fonts.MainFont, align="lm")
-    ImageDraw.Draw(fbuf).text((32,55),title, fill=255,font=fonts.NotifTitle, align="lm")
-    ImageDraw.Draw(fbuf).text((32,85),body, fill=255,font=fonts.MainFont, align="left")
     now = datetime.datetime.now().strftime("%H:%M")
     ImageDraw.Draw(fbuf).text((10,10), now, font=fonts.MainFont, fill=255, anchor="lt")
+    clocklen = round(ImageDraw.Draw(fbuf).textlength(now, font=fonts.MainFont))
+    fbuf.paste(icon.resize((16,16)),(10+clocklen+5,8))
+    ImageDraw.Draw(fbuf).text((10+clocklen+10+16,5),app, fill=255,font=fonts.MainFont, align="lm")
+    ImageDraw.Draw(fbuf).text((10,30),title, fill=255,font=fonts.NotifTitle, align="lm")
+    ImageDraw.Draw(fbuf).text((10,52),body, fill=255,font=fonts.MainFont, align="left")
     # notifIcon = Image.open("notification_icon.png").convert("L").resize((16,16))
-    fbuf.paste(icon.resize((16,16)),(32,32))
 def render_statusbar(icons=[]):
     global fbuf
     if len(icons) == 0:
@@ -109,7 +110,7 @@ waiting_notif = None
 
 def clear_notif():
     global waiting_notif
-    sleep(1)
+    sleep(20)
     state.FULLSCREEN_VIEW = False
     waiting_notif = None
     __main__.send_frame()
@@ -144,11 +145,17 @@ def msg_filter(bus, message):
         if length > 3: title = args[3]
         if length > 4: body = args[4]
         if length > 6: hints = args[6]
+        if "desktop-entry" in hints:
+            print(hints["desktop-entry"])
+            if icon == None or "preferences-desktop-notification-symbolic" in icon:
+                deIcon = resolve_icon(hints["desktop-entry"])
+                if deIcon != None:
+                    icon = deIcon
         print(f"""[notifications] Notification from {app_name}\n
-Icon -> {icon}
+Icon -> {str(icon)[:100]}
 Title -> {title}
 Body -> {body}
-Hints -> {hints}
+Hints -> {str(hints)[:100]}
 """)    
         iconimage = Image.new("L", (16,16),255)
         try:
@@ -160,7 +167,7 @@ Hints -> {hints}
         except Exception as e:
             traceback.print_exc()
             iconimage = Image.new("L", (16,16),0)
-        waiting_notif = {"icon":iconimage,"app":app_name,"title":title,"body":body}
+        waiting_notif = {"icon":iconimage,"app":app_name,"title":title,"body":body.replace("\n\n","\n")}
         state.FULLSCREEN_VIEW = True
         past_icons.insert(0,iconimage)
         if len(past_icons) > 5:
