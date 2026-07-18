@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw,ImageOps
 import __main__,math
+import resources
 import fonts, state, threading,time,subprocess
 fbuf = Image.new("L", (state.PANEL_W, state.PANEL_H), 220)
 media_string = "Nothing playing"
@@ -137,7 +138,7 @@ def fb():
     if not state.FULLSCREEN_VIEW:
         ImageDraw.Draw(fbuf).text(((state.PANEL_W-width)/2+(prepad), state.PANEL_H - 16), fitted, font=fonts.MainFont, fill=fgc, anchor="lm")
     if state.FULLSCREEN_VIEW:
-        fbuf.paste((Image.open("media_icons/play.png").resize((16,16))),(int(x1+11),int(state.PANEL_H-24)))
+        fbuf.paste((Image.open(resources.resource("media_icons/play.png")).resize((16,16))),(int(x1+11),int(state.PANEL_H-24)))
     else:
-        fbuf.paste(ImageOps.invert(Image.open("media_icons/play.png").resize((16,16))),(int(x1+11),int(state.PANEL_H-24)))
+        fbuf.paste(ImageOps.invert(Image.open(resources.resource("media_icons/play.png")).resize((16,16))),(int(x1+11),int(state.PANEL_H-24)))
     return fbuf

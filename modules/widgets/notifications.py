@@ -185,9 +185,14 @@ Hints -> {str(hints)[:100]}
         print(f"[notifications] Error parsing message contents: {e}")
         traceback.print_exc()
 DBusGMainLoop(set_as_default=True)
-session_bus = dbus.SessionBus()
-session_bus.add_match_string("type='method_call',interface='org.freedesktop.Notifications',member='Notify',eavesdrop=true")
-session_bus.add_message_filter(msg_filter)
-thread = threading.Thread(target=GLib.MainLoop().run)
-thread.start()
-print(f"[notifications] started listener thread")
+try:
+    session_bus = dbus.SessionBus()
+    session_bus.add_match_string("type='method_call',interface='org.freedesktop.Notifications',member='Notify',eavesdrop=true")
+    session_bus.add_message_filter(msg_filter)
+    thread = threading.Thread(target=GLib.MainLoop().run)
+    thread.start()
+    print(f"[notifications] started listener thread")
+except Exception as e:
+    print(f"[notifications/dbus] are you sure you're in a dbus session? {e}")
+    waiting_notif = {"icon":Image.new("L",(16,16),255),"app":"badgeydisp","title":"Dbus error","body":f"Are you in a Dbus session?\nFailed to connect.\nSee Logs\n{e}"}
+    
