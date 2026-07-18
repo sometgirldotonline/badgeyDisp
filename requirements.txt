@@ -4,3 +4,4 @@ cairosvg
 pyserial
 dbus-python
 PyGObject
+requests

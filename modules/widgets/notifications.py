@@ -117,6 +117,7 @@ def clear_notif(me):
     if me == str(cNotifID):
         state.FULLSCREEN_VIEW = False
         waiting_notif = None
+        cNotifID = -1
         __main__.send_frame()
 
 def fb():
@@ -127,8 +128,10 @@ def fb():
         render_statusbar(past_icons)
     else:
         render_notif(waiting_notif["icon"],waiting_notif["app"],waiting_notif["title"],waiting_notif["body"])
-        cNotifID =  uuid.uuid4()
-        threading.Thread(target=clear_notif,args=[str(cNotifID)]).start()
+        # only start a new clear thread if this is a NEW notification
+        if cNotifID == -1:
+            cNotifID = uuid.uuid4()
+            threading.Thread(target=clear_notif,args=[str(cNotifID)]).start()
     return fbuf
 
 def msg_filter(bus, message):

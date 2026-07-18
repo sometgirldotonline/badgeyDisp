@@ -42,7 +42,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='myapp',
+    name='badgeydisp',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
