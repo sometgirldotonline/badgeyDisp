@@ -1,0 +1,6 @@
+numpy
+Pillow
+cairosvg
+pyserial
+dbus-python
+PyGObject
