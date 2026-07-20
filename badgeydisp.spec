@@ -3,6 +3,7 @@ from PyInstaller.utils.hooks import collect_submodules
 from PyInstaller.utils.hooks import collect_all
 
 datas = [('media_icons', 'media_icons'), ('font.ttf', '.')]
+datas += [('/usr/lib/x86_64-linux-gnu/girepository-1.0', 'gi_typelibs')]
 binaries = []
 hiddenimports = ['dbus.mainloop.glib', 'gi.repository.GLib', 'gi.repository.Gio', 'serial.tools.list_ports']
 hiddenimports += collect_submodules('serial')
@@ -31,8 +32,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
+    runtime_hooks=['rthook_gi.py'],     excludes=[],
     noarchive=False,
     optimize=0,
 )
