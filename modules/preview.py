@@ -5,7 +5,7 @@ import state
 _preview_path = os.path.join(tempfile.gettempdir(), "badgey_preview.png")
 
 def unpack_portrait(packed: bytes, pw: int = state.PANEL_W, ph: int = state.PANEL_H) -> Image.Image:
-    arr = np.frombuffer(packed, dtype=np.uint8).reshape(ph, pw // 8)
+    arr = np.frombuffer(packed, dtype=np.uint8).reshape(pw, ph // 8)
     portrait = np.unpackbits(arr, axis=1, bitorder="big")
     landscape = np.flipud(portrait.T)
     return Image.fromarray((landscape * 255).astype(np.uint8), mode="L")
